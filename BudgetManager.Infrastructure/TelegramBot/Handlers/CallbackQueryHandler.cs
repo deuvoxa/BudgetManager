@@ -1,4 +1,5 @@
 ﻿using BudgetManager.Application.Services;
+using BudgetManager.Infrastructure.TelegramBot.Handlers.User;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -16,6 +17,15 @@ public static class CallbackQueryHandler
         {
             // await AdminCallbackHandler.HandleAdminCallback(botClient, callbackQuery, userService,
             //     ticketService, serverService, cancellationToken);
+        }
+
+        if (data is "add-transaction")
+        {
+            await AddTransaction.Execute(botClient, callbackQuery, userService, cancellationToken);
+        }
+        if (data is "view-accounts")
+        {
+            await ViewAccounts.Execute(botClient, callbackQuery, userService, cancellationToken);
         }
         else
         {

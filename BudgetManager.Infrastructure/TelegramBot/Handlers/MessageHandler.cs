@@ -3,7 +3,6 @@ using BudgetManager.Infrastructure.TelegramBot.Commands;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using User = BudgetManager.Domain.Entities.User;
 
 namespace BudgetManager.Infrastructure.TelegramBot.Handlers;
 
@@ -37,11 +36,12 @@ public static class MessageHandler
         }
     }
     
-    private static async Task<User> GetOrCreateUser(UserService userService, Message message, ILogger<BotService> logger)
+    private static async Task<Domain.Entities.User> GetOrCreateUser(UserService userService, Message message, ILogger<BotService> logger)
     {
         var user = await userService.GetUserByTelegramIdAsync(message.From!.Id);
         if (user is not null) return user;
-        user = new User
+        
+        user = new Domain.Entities.User
         {
             TelegramId = message.From.Id,
         };

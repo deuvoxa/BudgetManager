@@ -7,6 +7,6 @@ public class User
     // public string Currency { get; set; }
 
     // Связь с другими сущностями
-    public ICollection<Account> Accounts { get; set; }
-    public ICollection<Transaction> Transactions { get; set; }
+    public ICollection<Account> Accounts { get; set; } = [];
+    public ICollection<Transaction> Transactions { get; set; } = [];
 }

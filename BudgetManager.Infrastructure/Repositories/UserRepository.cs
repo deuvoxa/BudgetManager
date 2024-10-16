@@ -6,8 +6,11 @@ namespace BudgetManager.Infrastructure.Repositories;
 
 public class UserRepository(AppDbContext context) : IUserRepository
 {
-    public async Task<User> GetByTelegramIdAsync(long telegramId)
-        => await context.Users.SingleAsync(u => u.TelegramId == telegramId);
+    public async Task<User?> GetByTelegramIdAsync(long telegramId)
+        => await context.Users
+            .Include(u => u.Accounts)
+            .Include(u => u.Transactions)
+            .FirstOrDefaultAsync(u => u.TelegramId == telegramId);
 
     public async Task<User> AddAsync(User user)
     {

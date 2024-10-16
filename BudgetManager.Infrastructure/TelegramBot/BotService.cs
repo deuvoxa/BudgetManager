@@ -1,5 +1,6 @@
 ﻿using BudgetManager.Application.Services;
 using BudgetManager.Infrastructure.TelegramBot.Handlers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -11,7 +12,7 @@ using Telegram.Bot.Types.Enums;
 namespace BudgetManager.Infrastructure.TelegramBot;
 
 public class BotService(string token, ILogger<BotService> logger,
-    UserService userService
+    IServiceProvider serviceProvider
     )
     : IHostedService
 {
@@ -51,6 +52,8 @@ public class BotService(string token, ILogger<BotService> logger,
     {
         try
         {
+            using var scope = serviceProvider.CreateScope();
+            var userService = scope.ServiceProvider.GetRequiredService<UserService>();
             var handler = update switch
             {
                 { Message: { } message } =>

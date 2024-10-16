@@ -11,8 +11,7 @@ public static class TelegramBotExtensions
         services.AddHostedService(provider =>
         {
             var logger = provider.GetRequiredService<ILogger<BotService>>();
-            var userService = provider.GetRequiredService<UserService>();
-            return new BotService(token, logger, userService);
+            return new BotService(token, logger, provider);
         });
 
         return services;
