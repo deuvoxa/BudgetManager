@@ -3,6 +3,7 @@ using System;
 using BudgetManager.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BudgetManager.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241016122328_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,44 +53,6 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("BudgetManager.Domain.Entities.RegularPayment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal?>("InterestRate")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("MonthlyPayment")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime>("PaymentDueDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("PaymentType")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("RepaymentDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RegularPayment");
-                });
-
             modelBuilder.Entity("BudgetManager.Domain.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -111,9 +76,6 @@ namespace BudgetManager.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("RegularPaymentId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
@@ -123,8 +85,6 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
-
-                    b.HasIndex("RegularPaymentId");
 
                     b.HasIndex("UserId");
 
@@ -148,45 +108,10 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("BudgetManager.Domain.Entities.UserMetadata", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Attribute")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserMetadata");
-                });
-
             modelBuilder.Entity("BudgetManager.Domain.Entities.Account", b =>
                 {
                     b.HasOne("BudgetManager.Domain.Entities.User", "User")
                         .WithMany("Accounts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BudgetManager.Domain.Entities.RegularPayment", b =>
-                {
-                    b.HasOne("BudgetManager.Domain.Entities.User", "User")
-                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -202,10 +127,6 @@ namespace BudgetManager.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BudgetManager.Domain.Entities.RegularPayment", "RegularPayment")
-                        .WithMany()
-                        .HasForeignKey("RegularPaymentId");
-
                     b.HasOne("BudgetManager.Domain.Entities.User", "User")
                         .WithMany("Transactions")
                         .HasForeignKey("UserId")
@@ -214,27 +135,12 @@ namespace BudgetManager.Infrastructure.Migrations
 
                     b.Navigation("Account");
 
-                    b.Navigation("RegularPayment");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BudgetManager.Domain.Entities.UserMetadata", b =>
-                {
-                    b.HasOne("BudgetManager.Domain.Entities.User", "User")
-                        .WithMany("Metadata")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("BudgetManager.Domain.Entities.User", b =>
                 {
                     b.Navigation("Accounts");
-
-                    b.Navigation("Metadata");
 
                     b.Navigation("Transactions");
                 });

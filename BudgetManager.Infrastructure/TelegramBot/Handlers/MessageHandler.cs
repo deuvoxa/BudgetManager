@@ -1,5 +1,6 @@
 ﻿using BudgetManager.Application.Services;
 using BudgetManager.Infrastructure.TelegramBot.Commands;
+using BudgetManager.Infrastructure.TelegramBot.States;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -23,10 +24,11 @@ public static class MessageHandler
 
             if (!string.IsNullOrEmpty(command))
             {
-                await CommandHandler.HandleCommand(botClient, message, command, parameters, cancellationToken);
+                await CommandHandler.HandleCommand(botClient, message, command, parameters, userService, cancellationToken);
                 return;
             }
             
+            await StateHandler.HandleUserState(botClient, message, userService, cancellationToken);
             await botClient.DeleteMessageAsync(message.Chat.Id, message.MessageId,
                 cancellationToken: cancellationToken);
         }
@@ -45,7 +47,7 @@ public static class MessageHandler
         {
             TelegramId = message.From.Id,
         };
-        await userService.AddUserAsync(user);
+        await userService.AddAsync(user);
         logger.LogInformation($"Новый пользователь: {user.TelegramId}!");
 
         return user;

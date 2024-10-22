@@ -1,9 +1,10 @@
-﻿using Telegram.Bot;
+﻿using BudgetManager.Application.Services;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace BudgetManager.Infrastructure.TelegramBot.Commands;
 
-public class CommandHandler
+public static class CommandHandler
 {
     private static readonly List<string> Commands =
     [
@@ -24,12 +25,12 @@ public class CommandHandler
 
     public static async Task HandleCommand(
         ITelegramBotClient botClient, Message message, string command, string[] parameters, 
-        CancellationToken cancellationToken)
+        UserService userService, CancellationToken cancellationToken)
     {
         switch (command)
         {
             case "/start":
-                await StartCommand.ExecuteAsync(botClient, message, parameters, cancellationToken);
+                await StartCommand.ExecuteAsync(botClient, message, parameters, userService, cancellationToken);
                 break;
             default:
                 await botClient.DeleteMessageAsync(message.Chat, message.MessageId, cancellationToken);

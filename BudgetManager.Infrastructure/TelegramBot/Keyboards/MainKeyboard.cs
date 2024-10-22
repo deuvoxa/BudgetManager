@@ -9,9 +9,13 @@ public static class MainKeyboard
 
     private static KeyboardBuilder WithHome(this KeyboardBuilder builder)
         => builder.WithButtons([
-            ("Добавить транзакцию", "add-transaction"),
-            ("Посмотреть счета", "view-accounts")
-        ]);
+                ("Добавить транзакцию", "add-transaction"),
+                ("Посмотреть счета", "view-accounts")
+            ])
+            .WithButtons([
+                ("Статистика расходов", "view-stats"),
+                ("Добавить пассивы", "add-liabilities")
+            ]);
 
     public static InlineKeyboardMarkup Back => new KeyboardBuilder().WithBackToHome().Build();
 

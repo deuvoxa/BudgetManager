@@ -10,6 +10,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
         => await context.Users
             .Include(u => u.Accounts)
             .Include(u => u.Transactions)
+            .Include(u => u.Metadata)
             .FirstOrDefaultAsync(u => u.TelegramId == telegramId);
 
     public async Task<User> AddAsync(User user)

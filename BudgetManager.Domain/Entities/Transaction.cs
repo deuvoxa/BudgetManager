@@ -4,12 +4,15 @@ public class Transaction
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }  // Внешний ключ на пользователя
-    public Guid AccountId { get; set; }  // Внешний ключ на счет
+    public int AccountId { get; set; }  // Внешний ключ на счет
     public decimal Amount { get; set; }  // Сумма транзакции
     public TransactionType Type { get; set; }  // Тип транзакции (доход/расход)
     public DateTime Date { get; set; }  // Дата транзакции
     public string Category { get; set; }  // Категория транзакции
     public string Description { get; set; }  // Описание
+    
+    public Guid? RegularPaymentId { get; set; } // Внешний ключ на регулярный платёж (если есть)
+    public RegularPayment RegularPayment { get; set; }
 
     // Связи с другими сущностями
     public User User { get; set; }

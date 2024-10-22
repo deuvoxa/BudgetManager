@@ -4,6 +4,6 @@ namespace BudgetManager.Domain.Interfaces;
 
 public interface ITransactionRepository
 {
-    Task AddAsync(Transaction transaction);
+    Task<Transaction> AddAsync(Transaction transaction);
     Task<IEnumerable<Transaction>> GetByUserIdAsync(Guid userId);
 }
