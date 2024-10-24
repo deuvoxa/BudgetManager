@@ -11,6 +11,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
             .Include(u => u.Accounts)
             .Include(u => u.Transactions)
             .Include(u => u.Metadata)
+            .Include(u => u.RegularPayments)
             .FirstOrDefaultAsync(u => u.TelegramId == telegramId);
 
     public async Task<User> AddAsync(User user)

@@ -4,9 +4,9 @@ using BudgetManager.Infrastructure.TelegramBot.Keyboards;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
-namespace BudgetManager.Infrastructure.TelegramBot.States;
+namespace BudgetManager.Infrastructure.TelegramBot.States.Expecting;
 
-public class ExpectingAddAccountState : UserStateBase
+public class ExpectingAddAccount : UserStateBase
 {
     public override async Task HandleAsync(ITelegramBotClient botClient, UserService userService, User user,
         long chatId, string messageText,
@@ -20,6 +20,7 @@ public class ExpectingAddAccountState : UserStateBase
         {
             Name = parameters[0],
             Balance = decimal.Parse(parameters[1]),
+            IsActive = true
         };
         
         user.Accounts.Add(account);

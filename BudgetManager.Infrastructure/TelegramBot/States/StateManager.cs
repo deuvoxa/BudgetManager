@@ -1,17 +1,18 @@
 ﻿using BudgetManager.Application.Services;
+using BudgetManager.Infrastructure.TelegramBot.States.Expecting;
 using Telegram.Bot;
 
 namespace BudgetManager.Infrastructure.TelegramBot.States;
 
 public static class StateManager
 {
-    private static readonly Dictionary<string, IUserState> _states = new()
+    private static readonly Dictionary<string, IUserState> States = new()
     {
-        { "ExpectingAddAccountState", new ExpectingAddAccountState() },
-        { "ExpectingAmountTransactionState", new ExpectingAmountTransactionState()},
-        { "ExpectingTransferAmount", new ExpectingTransferAmountState()}
-        // { "ExpectingCountDays", new ExpectingCountDaysState() },
-        // { "ExpectingReplyQuestion", new ExpectingReplyQuestionState() },
+        { "ExpectingAddAccount", new ExpectingAddAccount() },
+        { "ExpectingAmountTransaction", new ExpectingTransactionAmount()},
+        { "ExpectingTransferAmount", new ExpectingTransferAmount()},
+        { "ExpectingAddCategory", new ExpectingAddCategory()},
+        { "ExpectingAddLiabilities", new ExpectingAddLiabilities()},
     };
 
     public static async Task HandleUserStateAsync(
@@ -19,7 +20,7 @@ public static class StateManager
         Domain.Entities.User user, long chatId, string messageText, 
         CancellationToken cancellationToken)
     {
-        if (_states.TryGetValue(state, out var userState))
+        if (States.TryGetValue(state, out var userState))
         {
             await userState.HandleAsync(botClient, userService, user, chatId, messageText, cancellationToken);
         }

@@ -6,6 +6,7 @@ public class Account
     public Guid UserId { get; set; }
     public string Name { get; set; }
     public decimal Balance { get; set; }
+    public bool IsActive { get; set; }
     public AccountType Type { get; set; }  // Тип счета (наличные, кредитка, накопительный)
     
     // Связи с другими сущностями

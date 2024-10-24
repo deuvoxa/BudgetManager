@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BudgetManager.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241016123439_Add Metadata")]
-    partial class AddMetadata
+    [Migration("20241023174916_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,6 +51,38 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("BudgetManager.Domain.Entities.RegularPayment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("Debt")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PaymentDueDate")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PaymentType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RegularPayment");
                 });
 
             modelBuilder.Entity("BudgetManager.Domain.Entities.Transaction", b =>
@@ -143,6 +175,17 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BudgetManager.Domain.Entities.RegularPayment", b =>
+                {
+                    b.HasOne("BudgetManager.Domain.Entities.User", "User")
+                        .WithMany("RegularPayments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BudgetManager.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("BudgetManager.Domain.Entities.Account", "Account")
@@ -178,6 +221,8 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.Navigation("Accounts");
 
                     b.Navigation("Metadata");
+
+                    b.Navigation("RegularPayments");
 
                     b.Navigation("Transactions");
                 });

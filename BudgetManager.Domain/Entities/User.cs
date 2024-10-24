@@ -9,9 +9,10 @@ public class User
     public int MainMessageId { get; set; }
 
     // Связь с другими сущностями
+    
+    public ICollection<RegularPayment> RegularPayments { get; set; } = [];
     public ICollection<Account> Accounts { get; set; } = [];
     public ICollection<Transaction> Transactions { get; set; } = [];
-
     public ICollection<UserMetadata> Metadata { get; set; } = [];
 }
 

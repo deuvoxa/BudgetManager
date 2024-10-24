@@ -33,6 +33,9 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("numeric");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -59,24 +62,18 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
+                    b.Property<decimal?>("Debt")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("InterestRate")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("MonthlyPayment")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime>("PaymentDueDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("PaymentDueDate")
+                        .HasColumnType("integer");
 
                     b.Property<int>("PaymentType")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime?>("RepaymentDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -111,9 +108,6 @@ namespace BudgetManager.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("RegularPaymentId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
@@ -123,8 +117,6 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
-
-                    b.HasIndex("RegularPaymentId");
 
                     b.HasIndex("UserId");
 
@@ -186,7 +178,7 @@ namespace BudgetManager.Infrastructure.Migrations
             modelBuilder.Entity("BudgetManager.Domain.Entities.RegularPayment", b =>
                 {
                     b.HasOne("BudgetManager.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("RegularPayments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -202,10 +194,6 @@ namespace BudgetManager.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BudgetManager.Domain.Entities.RegularPayment", "RegularPayment")
-                        .WithMany()
-                        .HasForeignKey("RegularPaymentId");
-
                     b.HasOne("BudgetManager.Domain.Entities.User", "User")
                         .WithMany("Transactions")
                         .HasForeignKey("UserId")
@@ -213,8 +201,6 @@ namespace BudgetManager.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
-
-                    b.Navigation("RegularPayment");
 
                     b.Navigation("User");
                 });
@@ -235,6 +221,8 @@ namespace BudgetManager.Infrastructure.Migrations
                     b.Navigation("Accounts");
 
                     b.Navigation("Metadata");
+
+                    b.Navigation("RegularPayments");
 
                     b.Navigation("Transactions");
                 });

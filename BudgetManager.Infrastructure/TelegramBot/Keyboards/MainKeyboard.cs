@@ -4,18 +4,20 @@ namespace BudgetManager.Infrastructure.TelegramBot.Keyboards;
 
 public static class MainKeyboard
 {
-    private static KeyboardBuilder WithBackToHome(this KeyboardBuilder builder)
+    public static KeyboardBuilder WithBackToHome(this KeyboardBuilder builder)
         => builder.WithButton("Вернуться назад", "main-menu");
 
     private static KeyboardBuilder WithHome(this KeyboardBuilder builder)
         => builder.WithButtons([
-                ("Добавить транзакцию", "add-transaction"),
-                ("Посмотреть счета", "view-accounts")
+                ("Добавить транзакцию", "transactions-add"),
             ])
+            .WithButton("Посмотреть счета", "accounts-menu")
             .WithButtons([
-                ("Статистика расходов", "view-stats"),
+                ("Добавить категорию", "categories-add"),
                 ("Добавить пассивы", "add-liabilities")
-            ]);
+            ])
+            .WithButton("Статистика", "statistics-menu")
+            .WithButton("Удалить категорию", "categories-remove");
 
     public static InlineKeyboardMarkup Back => new KeyboardBuilder().WithBackToHome().Build();
 

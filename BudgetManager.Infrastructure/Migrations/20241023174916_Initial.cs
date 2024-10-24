@@ -48,6 +48,49 @@ namespace BudgetManager.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RegularPayment",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PaymentType = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    PaymentDueDate = table.Column<int>(type: "integer", nullable: false),
+                    Debt = table.Column<decimal>(type: "numeric", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RegularPayment", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RegularPayment_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserMetadata",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Attribute = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserMetadata", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserMetadata_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -83,6 +126,11 @@ namespace BudgetManager.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RegularPayment_UserId",
+                table: "RegularPayment",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_AccountId",
                 table: "Transactions",
                 column: "AccountId");
@@ -91,13 +139,24 @@ namespace BudgetManager.Infrastructure.Migrations
                 name: "IX_Transactions_UserId",
                 table: "Transactions",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserMetadata_UserId",
+                table: "UserMetadata",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "RegularPayment");
+
+            migrationBuilder.DropTable(
                 name: "Transactions");
+
+            migrationBuilder.DropTable(
+                name: "UserMetadata");
 
             migrationBuilder.DropTable(
                 name: "Accounts");

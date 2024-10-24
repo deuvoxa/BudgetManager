@@ -39,4 +39,41 @@ public static class TransactionExtensions
         var dailyAverage = lastTransactions.Average(t => t.Amount);
         return dailyAverage * daysAhead;
     }
+    
+    public static IEnumerable<Transaction> GetTransactionsForCurrentMonth(this User user)
+    {
+        var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        var endOfToday = DateTime.UtcNow;
+
+        return user.Transactions.Where(t => t.Date >= startOfMonth && t.Date <= endOfToday);
+    }    
+    public static IEnumerable<Transaction> GetTransactionsForCurrentWeek(this User user)
+    {
+        var currentDayOfWeek = (int)DateTime.UtcNow.DayOfWeek;
+        var startOfWeek = DateTime.UtcNow.AddDays(-currentDayOfWeek + 1).Date; 
+        var endOfToday = DateTime.UtcNow;
+
+        return user.Transactions.Where(t => t.Date >= startOfWeek && t.Date <= endOfToday);
+    }
+    public static IEnumerable<Transaction> GetTransactionsForCurrentDay(this User user)
+    {
+        var startOfDay = DateTime.UtcNow.Date;
+        var endOfToday = DateTime.UtcNow;
+
+        return user.Transactions.Where(t => t.Date >= startOfDay && t.Date <= endOfToday);
+    }
+
+    public static IEnumerable<Transaction> GetTransactionsByCategoryForCurrentMonth(this User user, string category)
+    {
+        var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+        var endOfToday = DateTime.Now;
+
+        return user.Transactions.Where(t => t.Category == category && t.Date >= startOfMonth && t.Date <= endOfToday);
+    }
+
+    public static decimal GetTotalByCategoryForCurrentMonth(this User user, string category)
+    {
+        var transactions = GetTransactionsByCategoryForCurrentMonth(user, category);
+        return transactions.Sum(t => t.Amount);
+    }
 }

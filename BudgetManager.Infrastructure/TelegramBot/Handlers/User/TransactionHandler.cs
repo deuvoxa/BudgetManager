@@ -1,4 +1,6 @@
-﻿using BudgetManager.Application.Services;
+﻿using System.Text;
+using BudgetManager.Application.Extensions;
+using BudgetManager.Application.Services;
 using BudgetManager.Domain.Entities;
 using BudgetManager.Infrastructure.TelegramBot.Keyboards;
 using BudgetManager.Infrastructure.TelegramBot.States;
@@ -13,22 +15,30 @@ public class TransactionHandler(
     ITelegramBotClient botClient,
     CallbackQuery callbackQuery,
     UserService userService,
-    CancellationToken cancellationToken)
+    CancellationToken cancellationToken
+) : HandlerBase(botClient, callbackQuery, cancellationToken)
 {
+    private readonly CallbackQuery _callbackQuery = callbackQuery;
+
     public async Task AddTransaction()
     {
         var text = "*Добавить транзакции:*\n\n" +
                    "Выберите категорию:";
 
         // TODO: Добавление собственных категорий через бота
-        (string, string)[] categories =
+        List<(string, string)> categories =
         [
-            ("Продукты", "category-food"),
-            ("Транспорт", "category-transport"),
-            ("Зарплата", "category-salary"),
-            ("Другое", "category-other"),
-            ("Жильё", "category-house")
+            ("Продукты", "category-selectCategory-food"),
+            ("Транспорт", "category-selectCategory-transport"),
+            ("Зарплата", "category-selectCategory-salary"),
+            ("Другое", "category-selectCategory-other"),
+            ("Жильё", "category-selectCategory-house")
         ];
+
+        var user = await userService.GetUserByTelegramIdAsync(_callbackQuery.Message!.Chat.Id);
+
+        categories.AddRange(user.Metadata.Where(m => m.Attribute is "Category")
+            .Select(category => (category.Value, $"category-selectCategory-{category.Value}")));
 
         var keyboard = new KeyboardBuilder()
             .WithButtonGrid(categories)
@@ -40,7 +50,7 @@ public class TransactionHandler(
 
     public async Task SelectCategory(string category)
     {
-        var user = await userService.GetUserByTelegramIdAsync(callbackQuery.Message!.Chat.Id);
+        var user = await userService.GetUserByTelegramIdAsync(_callbackQuery.Message!.Chat.Id);
 
         category = category switch
         {
@@ -55,9 +65,10 @@ public class TransactionHandler(
 
         await userService.AddMetadata(user.TelegramId, "category", category);
 
-        var accounts = user.Accounts;
+        var accounts = user.GetActiveAccount();
 
-        var tuples = accounts.Select(account => ($"{account.Name}", $"account-{account.Id}")).ToArray();
+        var tuples = accounts.Select(account => ($"{account.Name}", $"transactions-selectAccount-{account.Id}"))
+            .ToArray();
 
         var keyboard = accounts.Count == 0
             ? MainKeyboard.Back
@@ -77,11 +88,11 @@ public class TransactionHandler(
 
     public async Task SelectAccount(string accountId)
     {
-        var message = callbackQuery.Message!;
+        var message = _callbackQuery.Message!;
         var chatId = message.Chat.Id;
         var user = await userService.GetUserByTelegramIdAsync(chatId);
 
-        var account = user.Accounts.FirstOrDefault(a => a.Id == int.Parse(accountId));
+        var account = user.GetActiveAccount().FirstOrDefault(a => a.Id == int.Parse(accountId));
 
         await userService.AddMetadata(chatId, "accountId", accountId);
 
@@ -94,8 +105,8 @@ public class TransactionHandler(
 
         var keyboard = new KeyboardBuilder()
             .WithButtons([
-                ("Доход", "select-income"),
-                ("Расход", "select-expense"),
+                ("Доход", "transactions-select-income"),
+                ("Расход", "transactions-select-expense"),
             ])
             .WithButton("Вернуться назад", "main-menu")
             .Build();
@@ -105,13 +116,13 @@ public class TransactionHandler(
 
     public async Task SelectIncomeExpense(string isIncome)
     {
-        var chatId = callbackQuery.Message!.Chat.Id;
+        var chatId = _callbackQuery.Message!.Chat.Id;
         var user = await userService.GetUserByTelegramIdAsync(chatId);
         await userService.AddMetadata(user.TelegramId, "isIncome", isIncome);
 
         var category = user.Metadata.FirstOrDefault(m => m.Attribute is "category")?.Value;
         var accountId = user.Metadata.FirstOrDefault(m => m.Attribute is "accountId")?.Value;
-        var account = user.Accounts.FirstOrDefault(a => a.Id == int.Parse(accountId));
+        var account = user.GetActiveAccount().FirstOrDefault(a => a.Id == int.Parse(accountId));
         var incomeOrExpense = isIncome is "income" ? "доход" : "расход";
 
         var text = $"*Добавить {incomeOrExpense}:*\n\n" +
@@ -121,18 +132,18 @@ public class TransactionHandler(
 
         await EditMessage(text, MainKeyboard.Back);
 
-        UserStates.State[chatId] = "ExpectingAmountTransactionState";
+        UserStates.State[chatId] = "ExpectingAmountTransaction";
     }
 
     public async Task AcceptTransaction()
     {
-        var message = callbackQuery.Message!;
+        var message = _callbackQuery.Message!;
         var chatId = message.Chat.Id;
         var user = await userService.GetUserByTelegramIdAsync(chatId);
 
         var category = user.Metadata.First(m => m.Attribute is "category").Value;
         var accountId = user.Metadata.First(m => m.Attribute is "accountId").Value;
-        var account = user.Accounts.First(a => a.Id == int.Parse(accountId));
+        var account = user.GetActiveAccount().First(a => a.Id == int.Parse(accountId));
         var isIncome = user.Metadata.First(m => m.Attribute is "isIncome").Value == "income";
         var amount = user.Metadata.First(m => m.Attribute is "amount").Value;
 
@@ -156,20 +167,9 @@ public class TransactionHandler(
 
         if (isIncome) account.Balance += transaction.Amount;
         else account.Balance -= transaction.Amount;
-        
+
         await userService.UpdateAsync(user);
 
         await EditMessage("Транзакция успешно добавлена!", MainKeyboard.Back);
-    }
-    
-    private async Task EditMessage(string text, InlineKeyboardMarkup keyboard)
-    {
-        await botClient.EditMessageTextAsync(
-            callbackQuery.Message!.Chat.Id,
-            callbackQuery.Message.MessageId,
-            text,
-            replyMarkup: keyboard,
-            parseMode: ParseMode.Markdown,
-            cancellationToken: cancellationToken);
     }
 }

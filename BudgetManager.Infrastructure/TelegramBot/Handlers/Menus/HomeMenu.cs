@@ -7,7 +7,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace BudgetManager.Infrastructure.TelegramBot.Handlers.Menus;
 
-public class HomeMenu
+public static class HomeMenu
 {
     public static async Task ExecuteAsync(
         ITelegramBotClient botClient, CallbackQuery callbackQuery,
@@ -19,8 +19,7 @@ public class HomeMenu
         const string text = """
                             *Главное меню*
 
-                            Добро пожаловать!
-                            _Пожалуйста, выберите, что вас интересует:_
+                            Добро пожаловать! _Пожалуйста, выберите, что вас интересует:_
                             """;
 
         var user = await userService.GetUserByTelegramIdAsync(chatId);
@@ -35,6 +34,7 @@ public class HomeMenu
         await userService.RemoveMetadata(chatId, "AmountTransfer");
         await userService.RemoveMetadata(chatId, "TargetAccountId");
         await userService.RemoveMetadata(chatId, "SourceAccountId");
+        await userService.RemoveMetadata(chatId, "Liabilities");
         
         await botClient.EditMessageTextAsync(
             chatId, user.MainMessageId, text,

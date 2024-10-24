@@ -10,9 +10,6 @@ public class Transaction
     public DateTime Date { get; set; }  // Дата транзакции
     public string Category { get; set; }  // Категория транзакции
     public string Description { get; set; }  // Описание
-    
-    public Guid? RegularPaymentId { get; set; } // Внешний ключ на регулярный платёж (если есть)
-    public RegularPayment RegularPayment { get; set; }
 
     // Связи с другими сущностями
     public User User { get; set; }
