@@ -1,0 +1,14 @@
+﻿{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "Telegram": {
+    "Token": "telegram-token-here"
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=budgetmanager;Username=postgres;Password=postgres"
+  }
+}

@@ -13,6 +13,7 @@ public static class StateManager
         { "ExpectingTransferAmount", new ExpectingTransferAmount()},
         { "ExpectingAddCategory", new ExpectingAddCategory()},
         { "ExpectingAddLiabilities", new ExpectingAddLiabilities()},
+        { "ExpectingShortTransactionId", new ExpectingShortTransactionId()},
     };
 
     public static async Task HandleUserStateAsync(

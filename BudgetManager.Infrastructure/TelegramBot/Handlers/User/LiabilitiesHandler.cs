@@ -22,9 +22,10 @@ public class LiabilitiesHandler(
                 ("Кредит", "add-liabilities-credit"),
                 ("Долг", "add-liabilities-debt"),
             ])
-            .WithButton("Вернуться назад", "main-menu")
+            .WithBackToHome()
             .Build();
 
+        await userService.RemoveMetadata(_callbackQuery.Message!.Chat.Id, "Liabilities");
         await EditMessage(text, keyboard);
     }
 
@@ -40,12 +41,16 @@ public class LiabilitiesHandler(
                          "`<число платежа>:<сумма платежа>`\n" + "например: `22:500`",
             _ => ""
         };
-
+        
         await userService.AddMetadata(_callbackQuery.From.Id, "Liabilities", liabilities);
         
         var chatId = _callbackQuery.Message!.Chat.Id;
         UserStates.State[chatId] = "ExpectingAddLiabilities";
         
-        await EditMessage(text, MainKeyboard.Back);
+        var keyboard = new KeyboardBuilder()
+            .WithButton("Вернуться назад", "add-liabilities")
+            .Build();
+        
+        await EditMessage(text, keyboard);
     }
 }

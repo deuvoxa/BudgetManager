@@ -48,11 +48,19 @@ public static class CallbackQueryHandler
 
             switch (method)
             {
+                case "menu":
+                    int page = 1;
+                    if (parameter is not "") page = int.Parse(parameter); 
+                    await TransactionsMenu.ExecuteAsync(botClient, callbackQuery, userService, cancellationToken, page);
+                    break;
                 case "accept":
                     await transactionHandler.AcceptTransaction();
                     break;
                 case "add":
                     await transactionHandler.AddTransaction();
+                    break;
+                case "remove":
+                    await transactionHandler.DeleteTransaction();
                     break;
                 case "selectCategory":
                     await transactionHandler.SelectCategory(parameter);

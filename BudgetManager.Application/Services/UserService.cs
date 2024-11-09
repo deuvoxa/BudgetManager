@@ -23,20 +23,21 @@ public class UserService(IUserRepository userRepository)
             Attribute = attribute,
             Value = value
         };
- 
+
         user.Metadata.Add(metadata);
         await userRepository.UpdateAsync(user);
     }
-    
+
     public async Task RemoveMetadata(long telegramId, string attribute)
     {
         var user = await userRepository.GetByTelegramIdAsync(telegramId);
-        var metadata = user.Metadata.FirstOrDefault(m => m.Attribute == attribute);
-        if (metadata is null)
+
+        var metadatasToRemove = user.Metadata.Where(m => m.Attribute == attribute).ToList();
+        foreach (var metadata in metadatasToRemove)
         {
-            return;
+            user.Metadata.Remove(metadata);
         }
-        user.Metadata.Remove(metadata);
+
         await userRepository.UpdateAsync(user);
     }
 }

@@ -18,7 +18,12 @@ public class ExpectingTransferAmount : UserStateBase
         var targetAccount = user.GetActiveAccount().FirstOrDefault(x =>
             x.Id == int.Parse(user.Metadata.FirstOrDefault(x => x.Attribute == "TargetAccountId").Value));
 
-        // TODO: Проверка значений от пользователя
+        if (!decimal.TryParse(messageText, out var transferAmount) || transferAmount <= 0)
+        {
+            await SendErrorAsync(botClient, chatId, "Ошибка: Введите корректную положительную сумму для перевода.", user, cancellationToken);
+            return;
+        }
+        
         var text = $"""
                    Перевожу со счёта *{sourceAccount.Name}*
                    на счёт *{targetAccount.Name}* `{messageText}`?
@@ -36,5 +41,11 @@ public class ExpectingTransferAmount : UserStateBase
             parseMode: ParseMode.Markdown, cancellationToken: cancellationToken);
 
         UserStates.State[chatId] = string.Empty;
+    }
+    
+    private async Task SendErrorAsync(ITelegramBotClient botClient, long chatId, string errorMessage, User user, CancellationToken cancellationToken)
+    {
+        var errorText = $"{errorMessage}\n\nПопробуйте снова.";
+        await botClient.SendTextMessageAsync(chatId, errorText, parseMode: ParseMode.Markdown, cancellationToken: cancellationToken);
     }
 }

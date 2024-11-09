@@ -25,14 +25,13 @@ public class TransactionHandler(
         var text = "*Добавить транзакции:*\n\n" +
                    "Выберите категорию:";
 
-        // TODO: Добавление собственных категорий через бота
         List<(string, string)> categories =
         [
-            ("Продукты", "category-selectCategory-food"),
-            ("Транспорт", "category-selectCategory-transport"),
-            ("Зарплата", "category-selectCategory-salary"),
-            ("Другое", "category-selectCategory-other"),
-            ("Жильё", "category-selectCategory-house")
+            ("Продукты", "transactions-selectCategory-food"),
+            ("Транспорт", "transactions-selectCategory-transport"),
+            ("Зарплата", "transactions-selectCategory-salary"),
+            ("Другое", "transactions-selectCategory-other"),
+            ("Жильё", "transactions-selectCategory-house")
         ];
 
         var user = await userService.GetUserByTelegramIdAsync(_callbackQuery.Message!.Chat.Id);
@@ -42,7 +41,7 @@ public class TransactionHandler(
 
         var keyboard = new KeyboardBuilder()
             .WithButtonGrid(categories)
-            .WithButton("Вернуться назад", "main-menu")
+            .WithBackToTransactions()
             .Build();
 
         await EditMessage(text, keyboard);
@@ -170,6 +169,39 @@ public class TransactionHandler(
 
         await userService.UpdateAsync(user);
 
-        await EditMessage("Транзакция успешно добавлена!", MainKeyboard.Back);
+        await EditMessage("Транзакция успешно добавлена!", new KeyboardBuilder().WithBackToTransactions().Build());
+    }
+
+    public async Task DeleteTransaction()
+    {
+        var chatId = _callbackQuery.Message!.Chat.Id;
+        var user = await userService.GetUserByTelegramIdAsync(chatId);
+
+        if (!user.Metadata.Any(m => m.Attribute is "TransactionId"))
+        {
+            UserStates.State[chatId] = "ExpectingShortTransactionId";
+
+            await EditMessage("Введите ID транзакции. Найти его можно в меню транзакций в скобках вида (35f02290)",
+                new KeyboardBuilder().WithBackToTransactions().Build());
+            return;
+        }
+
+        var transactionId = user.Metadata.FirstOrDefault(m => m.Attribute is "TransactionId")?.Value;
+
+        var transaction = user.Transactions.FirstOrDefault(t => t.Id.ToString().StartsWith(transactionId)
+        );
+
+        if (transaction != null)
+        {
+            user.Transactions.Remove(transaction);
+            await userService.UpdateAsync(user);
+
+            await EditMessage("Транзакция успешно удалена!", new KeyboardBuilder().WithBackToTransactions().Build());
+        }
+        else
+        {
+            await EditMessage("Транзакция с таким ID не найдена.",
+                new KeyboardBuilder().WithBackToTransactions().Build());
+        }
     }
 }

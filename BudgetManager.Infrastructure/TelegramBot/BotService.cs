@@ -19,7 +19,7 @@ public class BotService(
     : IHostedService
 {
     private readonly ITelegramBotClient _botClient = new TelegramBotClient(token);
-    private CancellationTokenSource _cts;
+    private CancellationTokenSource _cts = null!;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -70,8 +70,7 @@ public class BotService(
         }
         catch (Exception e)
         {
-            // TODO: replace to serilog
-            Console.WriteLine(e);
+            logger.LogError(e.Message);
         }
     }
 
