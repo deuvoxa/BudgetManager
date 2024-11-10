@@ -57,7 +57,7 @@ public static class TransactionsMenu
 
         keyboard.WithButtons(navigationButtons.ToArray());
         keyboard.WithButton("Добавить транзакцию", "transactions-add");
-        keyboard.WithButton("Удалить транзакцию", "transactions-remove");
+        if (user.Transactions.Count > 0) keyboard.WithButton("Удалить транзакцию", "transactions-remove");
         keyboard.WithButton("Вернуться назад", "main-menu");
 
         await botClient.EditMessageTextAsync(chatId, message.MessageId, text, replyMarkup: keyboard.Build(),

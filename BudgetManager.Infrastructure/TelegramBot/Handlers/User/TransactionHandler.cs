@@ -37,7 +37,7 @@ public class TransactionHandler(
         var user = await userService.GetUserByTelegramIdAsync(_callbackQuery.Message!.Chat.Id);
 
         categories.AddRange(user.Metadata.Where(m => m.Attribute is "Category")
-            .Select(category => (category.Value, $"category-selectCategory-{category.Value}")));
+            .Select(category => (category.Value, $"transactions-selectCategory-{category.Value}")));
 
         var keyboard = new KeyboardBuilder()
             .WithButtonGrid(categories)
@@ -204,4 +204,33 @@ public class TransactionHandler(
                 new KeyboardBuilder().WithBackToTransactions().Build());
         }
     }
+
+    public async Task AddDescription()
+    {
+        // TODO: Тут
+        var chatId = _callbackQuery.Message!.Chat.Id;
+        var user = await userService.GetUserByTelegramIdAsync(chatId);
+        
+        var category = user.Metadata.FirstOrDefault(m => m.Attribute is "category")?.Value;
+        var accountId = user.Metadata.FirstOrDefault(m => m.Attribute is "accountId")?.Value;
+        var account = user.GetActiveAccount().FirstOrDefault(a => a.Id == int.Parse(accountId));
+        var isIncome = user.Metadata.FirstOrDefault(i => i.Attribute is "isIncome")?.Value is "income";
+        var amount = user.Metadata.FirstOrDefault(i => i.Attribute is "amount")?.Value;
+        
+        var transaction = isIncome
+            ? "доход"
+            : "расход";
+
+        var text = $"*Добавить {transaction}:*\n\n" +
+                   $"*Категория:* `{category}`\n" +
+                   $"*Счёт:* `{account.Name}`\n" +
+                   $"*Сумма:* `{amount}`\n" +
+                   $"*Дата:* `{DateTime.UtcNow:dd.MM.yyy}`\n\n" +
+                   $"Введите описание:";
+        
+        UserStates.State[chatId] = "ExpectingDescription";
+        
+        await EditMessage("Введите описание для транзакции.", new KeyboardBuilder().WithBackToTransactions().Build());
+    }
+
 }

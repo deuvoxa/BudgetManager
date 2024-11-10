@@ -59,6 +59,9 @@ public static class CallbackQueryHandler
                 case "add":
                     await transactionHandler.AddTransaction();
                     break;
+                case "addDescription":
+                    await transactionHandler.AddDescription();
+                    break;
                 case "remove":
                     await transactionHandler.DeleteTransaction();
                     break;

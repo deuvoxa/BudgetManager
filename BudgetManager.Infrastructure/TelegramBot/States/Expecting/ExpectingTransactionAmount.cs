@@ -49,7 +49,7 @@ public class ExpectingTransactionAmount : UserStateBase
 
         var keyboard = new KeyboardBuilder()
             // TODO: Реализация кнопок
-            .WithButton("Добавить описание", "d")
+            .WithButton("Добавить описание", "transactions-addDescription")
             .WithButton("Изменить дату", "a")
             .WithButtons([
                 ("Да", "transactions-accept"),
